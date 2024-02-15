@@ -1,0 +1,1 @@
+web: new-django-blog.wsgi
