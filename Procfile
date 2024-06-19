@@ -1,1 +1,1 @@
-web: gunicorn new_django_blog.wsgi
+web: gunicorn core.wsgi
