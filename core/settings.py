@@ -19,6 +19,10 @@ import dj_database_url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Builds a path from BASE_DIR to TEMPLATES_DIR
+TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
+
+
 if os.path.isfile('env.py'):
     import env
 
@@ -63,7 +67,7 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [TEMPLATES_DIR],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
