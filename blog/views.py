@@ -14,7 +14,10 @@ class PostDetailView(generic.DetailView):
     template_name = "blog/post_detail.html"
 
     def get_object(self):
-        return get_object_or_404(Post.objects.filter(status=1), slug=self.kwargs['slug'])
+        return get_object_or_404(
+            self.query_set,
+            slug=self.kwargs['slug']
+            )
 
 ## original function view code
 # def post_detail(request, slug):
