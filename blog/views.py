@@ -1,5 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import generic
+from django.contrib import messages
+
 from .models import Post
 from .forms import CommentForm
 
@@ -51,6 +53,10 @@ class PostDetailView(generic.DetailView):
             comment.author = request.user
             comment.post = post
             comment.save()
+            messages.add_message(
+                request, messages.SUCCESS,
+                'Comment submitted and awaiting approval'
+                )
 
             # Redirect to the same post detail page after saving the comment
             return redirect('post_detail', slug=post.slug)
