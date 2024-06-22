@@ -72,7 +72,6 @@ class PostDetailView(generic.DetailView):
 class CommentEditView(generic.UpdateView):
     model = Comment
     form_class = CommentForm
-    template_name = "blog/comment_edit.html"
 
     def get_success_url(self):
         return reverse('post_detail', kwargs={'slug': self.object.post.slug})
@@ -103,3 +102,10 @@ class CommentEditView(generic.UpdateView):
 
     def get_queryset(self):
         return Comment.objects.all()
+    
+
+class ComentDeleteView(generic.DeleteView):
+    model = Comment
+    template_name = "blog/comment_delete.html"
+
+    
