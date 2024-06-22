@@ -72,6 +72,7 @@ class PostDetailView(generic.DetailView):
 class CommentEditView(generic.UpdateView):
     model = Comment
     form_class = CommentForm
+    template_name = "blog/post_detail.html"
 
     def get_success_url(self):
         return reverse('post_detail', kwargs={'slug': self.object.post.slug})
@@ -104,8 +105,18 @@ class CommentEditView(generic.UpdateView):
         return Comment.objects.all()
     
 
-class ComentDeleteView(generic.DeleteView):
-    model = Comment
-    template_name = "blog/comment_delete.html"
+def comment_delete(request, slug, comment_id):
+    """
+    view to delete comment
+    """
+    queryset = Post.objects.filter(status=1)
+    post = get_object_or_404(queryset, slug=slug)
+    comment = get_object_or_404(Comment, pk=comment_id)
 
-    
+    if comment.author == request.user:
+        comment.delete()
+        messages.add_message(request, messages.SUCCESS, 'Comment deleted!')
+    else:
+        messages.add_message(request, messages.ERROR, 'You can only delete your own comments!')
+
+    return HttpResponseRedirect(reverse('post_detail', args=[slug]))
