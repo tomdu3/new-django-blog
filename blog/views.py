@@ -1,8 +1,8 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404, reverse
 from django.views import generic
 from django.contrib import messages
-
-from .models import Post
+from django.http import HttpResponseRedirect
+from .models import Post, Comment
 from .forms import CommentForm
 
 
@@ -69,20 +69,37 @@ class PostDetailView(generic.DetailView):
             context['comment_form'] = comment_form
             return self.render_to_response(context)
 
-## original function view code
-# def post_detail(request, slug):
-#     """
-#     Display an individual :model:`blog.Post`.
+class CommentEditView(generic.UpdateView):
+    model = Comment
+    form_class = CommentForm
+    template_name = "blog/comment_edit.html"
 
-#     **Context**
+    def get_success_url(self):
+        return reverse('post_detail', kwargs={'slug': self.object.post.slug})
 
-#     ``post``
-#         An instance of :model:`blog.Post`.
+    def form_valid(self, form):
+        comment = form.save(commit=False)
+        comment.approved = False  # Mark the comment as unapproved after editing
+        comment.save()
+        messages.success(self.request, 'Comment updated!')
+        return super().form_valid(form)
 
-#     **Template:**
+    def form_invalid(self, form):
+        messages.error(self.request, 'Error updating comment!')
+        return super().form_invalid(form)
 
-#     :template:`blog/post_detail.html`
-#     """
-#     queryset = Post.objects.filter(status=1)
-#     post = get_object_or_404(queryset, slug=slug)
-#     return render(request, "blog/post_detail.html", {"post": post},)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        post_slug = self.kwargs.get('slug')
+        post = get_object_or_404(Post, slug=post_slug)
+        context['post'] = post
+        return context
+
+    def get_object(self, queryset=None):
+        comment_id = self.kwargs['comment_id']
+        post_slug = self.kwargs['slug']
+        queryset = queryset or self.get_queryset()
+        return get_object_or_404(queryset, pk=comment_id, post__slug=post_slug)
+
+    def get_queryset(self):
+        return Comment.objects.all()
