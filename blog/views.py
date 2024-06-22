@@ -23,6 +23,8 @@ class PostDetailView(generic.DetailView):
             )
 
     def get_context_data(self, **kwargs):
+        print('About to render template')
+
         # Get the default context data from the DetailView
         context = super().get_context_data(**kwargs)
         
@@ -43,6 +45,7 @@ class PostDetailView(generic.DetailView):
         return context
 
     def post(self, request, *args, **kwargs):
+        print('Received POST request')
         # Retrieve the post object
         post = self.get_object()
 
