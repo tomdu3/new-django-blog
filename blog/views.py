@@ -19,6 +19,23 @@ class PostDetailView(generic.DetailView):
             slug=self.kwargs['slug']
             )
 
+    def get_context_data(self, **kwargs):
+        # Get the default context data from the DetailView
+        context = super().get_context_data(**kwargs)
+        
+        # Retrieve the post object
+        post = self.get_object()
+        
+        # Get the comments and comment count
+        comments = post.comments.all().order_by("-created_on")
+        comment_count = post.comments.filter(approved=True).count()
+        
+        # Add the comments and comment count to the context
+        context['comments'] = comments
+        context['comment_count'] = comment_count
+        
+        return context
+
 ## original function view code
 # def post_detail(request, slug):
 #     """
