@@ -1,6 +1,7 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import generic
 from .models import Post
+from .forms import CommentForm
 
 
 class Postlist(generic.ListView):
@@ -25,6 +26,9 @@ class PostDetailView(generic.DetailView):
         
         # Retrieve the post object
         post = self.get_object()
+
+        # add comment form 
+        comment_form = CommentForm()
         
         # Get the comments and comment count
         comments = post.comments.all().order_by("-created_on")
@@ -33,8 +37,28 @@ class PostDetailView(generic.DetailView):
         # Add the comments and comment count to the context
         context['comments'] = comments
         context['comment_count'] = comment_count
-        
+        context['comment_form'] = comment_form
         return context
+
+    def post(self, request, *args, **kwargs):
+        # Retrieve the post object
+        post = self.get_object()
+
+        # Process the comment form
+        comment_form = CommentForm(data=request.POST)
+        if comment_form.is_valid():
+            comment = comment_form.save(commit=False)
+            comment.author = request.user
+            comment.post = post
+            comment.save()
+
+            # Redirect to the same post detail page after saving the comment
+            return redirect('post_detail', slug=post.slug)
+        else:
+            # If the form is not valid, re-render the detail view with the form errors
+            context = self.get_context_data()
+            context['comment_form'] = comment_form
+            return self.render_to_response(context)
 
 ## original function view code
 # def post_detail(request, slug):
